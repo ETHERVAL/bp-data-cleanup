@@ -36,7 +36,22 @@ def group_by_month(path):
             for file in groups[key]:
                 os.rename(os.path.join(file_path, file), os.path.join(f'{file_path}{key}', file))
 
-def split_data_per_month(path):
+def split_data_per_month(path, type):
+    month_dict = {
+        "1": "january",
+        "2": "february",
+        "3": "march",
+        "4": "april",
+        "5": "may",
+        "6": "june",
+        "7": "july",
+        "8": "august",
+        "9": "september",
+        "10": "october",
+        "11": "november",
+        "12": "december",
+    }
+
     df = create_dataframe(path)
     df.fillna("", inplace=True)
 
@@ -54,13 +69,13 @@ def split_data_per_month(path):
 
         df.drop("Unnamed: 0", axis=1, inplace=True)
 
-        df.to_csv(f"output/output-uang-muka-{name[0]}.csv")
+        df.to_csv(f"output/output-{type}-{month_dict[str(name[0])]}.csv")
 
 
 
 if __name__ == '__main__':
-    file_path = 'output/output-uang-muka-januari-maret.csv'
+    file_path = 'output/output-uang-muka-penjualan-januari-maret.csv'
 
-    split_data_per_month(file_path)
+    split_data_per_month(file_path, type="uang-muka-penjualan")
 
 

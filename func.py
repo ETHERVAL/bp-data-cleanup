@@ -641,7 +641,7 @@ def process_faktur_penjualan(clean_df):
     return output, error_logs
 
 
-def get_all_faktur_penjualan():
+def get_all_faktur_pembelian():
     january = clean_data("data/RINCIAN FAKTUR PEMBELIAN JANUARI 2025.xlsx")
     february = clean_data("data/RINCIAN FAKTUR PEMBELIAN FEBRUARI 2025.xlsx")
     march = clean_data("data/RINCIAN FAKTUR PEMBELIAN 1-9 MARET 2025.xlsx")
@@ -660,19 +660,42 @@ def get_all_faktur_penjualan():
 
     return all
 
+def get_all_faktur_penjualan():
+    january = clean_data("data/FAKTUR PENJUALAN 01-31 JANUARI 2025.xlsx")
+    february = clean_data("data/FAKTUR PENJUALAN 01-28 FEBRUARI 2025.xlsx")
+    march = clean_data("data/FAKTUR PENJUALAN 01-13 MARET 2025.xlsx")
 
 
-def process_nomor_so_uang_muka(param):
-    file_2 = clean_data("data/UM PEMBELIAN.xlsx")
+    all = pd.concat([january, february, march], ignore_index=True)
 
-    file_3 = get_all_faktur_penjualan()
-    try:
-        return file_3[file_3["Nomor #"] == file_2[file_2["Nomor #"] == param]["Nomor Transaksi"].values[0]]["Nomor # Pesanan Pembelian"].values[0]
-    except:
-        error_logs.append(
-            ["nomor so", param]
-        )
-        return ""
+    return all
+
+def process_nomor_so_uang_muka(param, type):
+    if type == "uang-muka-pembelian":
+        file_2 = clean_data("data/UM PEMBELIAN.xlsx")
+
+        file_3 = get_all_faktur_pembelian()
+        try:
+            return file_3[file_3["Nomor #"] == file_2[file_2["Nomor #"] == param]["Nomor Transaksi"].values[0]]["Nomor # Pesanan Pembelian"].values[0]
+        except:
+            error_logs.append(
+                ["nomor so", param]
+            )
+            return ""
+
+    if type == "uang-muka-penjualan":
+        file_2 = clean_data("data/UANG MUKA PENJUALAN (NOTA).xlsx")
+
+        file_3 = get_all_faktur_penjualan()
+
+        try:
+            return file_3[file_3["Nomor #"] == file_2[file_2["Nomor #"] == param]["Nomor Transaksi"].values[0]]["Nomor # Pesanan Penjualan"].values[0]
+        except:
+            error_logs.append(
+                ["nomor so", param]
+            )
+            return ""
+
 
 def process_nomor_dokumen(param):
     return param
@@ -680,7 +703,7 @@ def process_nomor_dokumen(param):
 def process_kurs(param):
     return param
 
-def process_uang_muka(clean_df):
+def process_uang_muka(clean_df, type):
     output = []
 
     columns_in_text = "Nomor SO	Nomor Dokumen	Customer	Date	Currency	Kurs	Received Amount	Cash/Bank	Catatan"
@@ -697,20 +720,33 @@ def process_uang_muka(clean_df):
         print("progress")
         print(f'{index} / {len(clean_df)}')
 
-        processed = [
-            process_nomor_so_uang_muka(row["Nomor #"]),
-            process_nomor_dokumen(row["Nomor #"]),
-            process_supplier(row["Pemasok"], index),
-            process_date(row["Tanggal"]),
-            process_currency(row["Mata Uang"]),
-            process_kurs(row["Kurs"]),
-            process_grand_total(row["Total"]),
-            "",
-            ""
-        ]
-        #
-        # print("PROCESSED")
-        # print(processed)
+        processed = []
+
+        if type == "uang-muka-pembelian":
+            processed = [
+                process_nomor_so_uang_muka(row["Nomor #"], type),
+                process_nomor_dokumen(row["Nomor #"]),
+                process_supplier(row["Pemasok"], index),
+                process_date(row["Tanggal"]),
+                process_currency(row["Mata Uang"]),
+                process_kurs(row["Kurs"]),
+                process_grand_total(row["Total"]),
+                "",
+                ""
+            ]
+
+        if type == "uang-muka-penjualan":
+            processed = [
+                process_nomor_so_uang_muka(row["Nomor #"], type),
+                process_nomor_dokumen(row["Nomor #"]),
+                process_customer(row["Pelanggan"], index),
+                process_date(row["Tanggal"]),
+                "IDR",
+                "1",
+                process_grand_total(row["Total"]),
+                "",
+                ""
+            ]
 
         output.append(processed)
 
@@ -734,8 +770,11 @@ def process_by_file_type(clean_df, file_type):
     if file_type == 'faktur-penjualan':
         output, error_logs = process_faktur_penjualan(clean_df)
 
-    if file_type == "uang-muka":
-        output, error_logs = process_uang_muka(clean_df)
+    if file_type == "uang-muka-pembelian":
+        output, error_logs = process_uang_muka(clean_df, file_type)
+
+    if file_type == "uang-muka-penjualan":
+        output, error_logs = process_uang_muka(clean_df, file_type)
 
 
     return output, error_logs

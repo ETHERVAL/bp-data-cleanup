@@ -7,10 +7,10 @@ if __name__ == '__main__':
 
     # path = "data/RINCIAN PENERIMAAN PESANAN JANUARI 2025.xlsx"
     # file_type = "penerimaan-pesanan"
-    #
+
     # path = "data/RINCIAN FAKTUR PEMBELIAN JANUARI 2025.xlsx"
     # file_type = "faktur-pembelian"
-    #
+
     # path = "data/RINCIAN PESANAN PEMBELIAN JANUARI 2025.xlsx"
     # file_type = "pesanan-pembelian"
 
@@ -21,14 +21,19 @@ if __name__ == '__main__':
     # path = "data/FAKTUR PENJUALAN 01-28 FEBRUARI 2025.xlsx"
     # file_type = "faktur-penjualan"
     # month = "februari"
-    # #
+
     # path = "data/FAKTUR PENJUALAN 01-13 MARET 2025.xlsx"
     # file_type = "faktur-penjualan"
     # month = "maret"
 
-    path = "data/UANG MUKA PEMBELIAN 01 JAN - 19 MAR '25 REVISI.xlsx"
-    file_type = "uang-muka"
+    # path = "data/UANG MUKA PEMBELIAN 01 JAN - 19 MAR '25 REVISI.xlsx"
+    # file_type = "uang-muka-pembelian"
+    # month = "januari-maret"
+
+    path = "data/UANG MUKA PENJUALAN.xlsx"
+    file_type = "uang-muka-penjualan"
     month = "januari-maret"
+
 
     clean_data = clean_data(path, file_type)
 
